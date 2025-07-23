@@ -1,26 +1,28 @@
-name: Update Price File
+name: Update XLSX to target repo
 
 on:
+  workflow_dispatch:
   schedule:
-    - cron: '10 14 * * *'  # запуск в 17:10 по МСК
-  workflow_dispatch:       # ручной запуск по кнопке
+    - cron: '10 6 * * *' # Ежедневно в 06:10 UTC (09:10 по Москве)
 
 jobs:
   update:
     runs-on: ubuntu-latest
+
+    env:
+      TARGET_REPO_PAT: ${{ secrets.TARGET_REPO_PAT }}
+
     steps:
-      - name: Клонировать репозиторий
-        uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v3
 
-      - name: Установить Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.10
 
-      - name: Установить зависимости
-        run: |
-          python -m pip install --upgrade pip
-          pip install pandas requests xlrd openpyxl
+    - name: Install dependencies
+      run: pip install pandas requests xlrd openpyxl
 
-      - name: Запустить скрипт
-        run: python server.py
+    - name: Run script
+      run: python server.py
