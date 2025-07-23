@@ -35,17 +35,14 @@ df.to_excel(xlsx_output, index=False)
 print("✔️ Преобразование завершено")
 
 # === 4. Заливаем в GitHub ===
-GIT_REPO_DIR = "/Users/vladlv/PycharmProjects/fullparf2/fullparf"
-os.chdir(GIT_REPO_DIR)
+# Рабочая директория — это корень репозитория
+repo_dir = os.getcwd()
 
-# Жёсткий сброс к удалённому состоянию (если правим только один файл)
-subprocess.run(["git", "fetch", "origin"])
-subprocess.run(["git", "reset", "--hard", "origin/main"])
+# Git конфигурация (если нужно)
+subprocess.run(["git", "config", "user.name", "github-actions"])
+subprocess.run(["git", "config", "user.email", "github-actions@github.com"])
 
-# Копируем свежий файл
-subprocess.run(["cp", f"../{xlsx_output}", f"{GIT_REPO_DIR}/{xlsx_output}"])
-
-# Коммитим и пушим
+# Добавляем и пушим изменения
 subprocess.run(["git", "add", xlsx_output])
 subprocess.run(["git", "commit", "-m", "Обновление XLSX с актуальными ценами"])
 subprocess.run(["git", "push"])
