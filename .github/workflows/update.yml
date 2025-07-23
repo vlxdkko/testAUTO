@@ -1,34 +1,26 @@
-name: Update XLSX Daily
+name: Update Price File
 
 on:
   schedule:
-    - cron: '24 14 * * *'  # Запуск каждый день в 3:00 МСК (UTC+3 → cron в 0:00 UTC)
-  workflow_dispatch:     # Ручной запуск
+    - cron: '10 14 * * *'  # запуск в 17:10 по МСК
+  workflow_dispatch:       # ручной запуск по кнопке
 
 jobs:
   update:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
+      - name: Клонировать репозиторий
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Установить Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: 3.11
 
-      - name: Install dependencies
+      - name: Установить зависимости
         run: |
-          pip install pandas xlrd openpyxl
+          python -m pip install --upgrade pip
+          pip install pandas requests xlrd openpyxl
 
-      - name: Run script
+      - name: Запустить скрипт
         run: python server.py
-
-      - name: Commit changes
-        run: |
-          git config --global user.email "wisvladko@gmail.com"
-          git config --global user.name "vlxddko"
-          git add "Актуальный прайс.xlsx"
-          git commit -m "🔄 Автообновление прайса" || echo "No changes"
-          git push
