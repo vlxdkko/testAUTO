@@ -23,7 +23,7 @@ jobs:
           pip install pandas xlrd openpyxl
 
       - name: Run script
-        run: python update_price.py
+        run: python server.py
 
       - name: Commit changes
         run: |
