@@ -7,13 +7,31 @@ import subprocess
 url = "https://optparf.ru/upload/goods/Актуальный прайс.xls"
 xls_filename = "Актуальный прайс.xls"
 
+print("⏬ Загружаем файл...")
 response = requests.get(url)
+if response.status_code != 200:
+    print(f"❌ Ошибка при скачивании: статус {response.status_code}")
+    exit(1)
+
 with open(xls_filename, 'wb') as f:
     f.write(response.content)
 print("✔️ XLS скачан")
 
+# Проверим наличие и размер файла
+if not os.path.exists(xls_filename):
+    print("❌ Файл не найден после скачивания.")
+    exit(1)
+
+print(f"📄 Файл существует, размер: {os.path.getsize(xls_filename)} байт")
+
 # === 2. Обработка файла ===
-df = pd.read_excel(xls_filename, engine="xlrd", header=None)
+print("📊 Читаем файл...")
+try:
+    df = pd.read_excel(xls_filename, engine="xlrd", header=None)
+except Exception as e:
+    print("❌ Ошибка чтения Excel:", e)
+    exit(1)
+
 df = df.iloc[:, 1:]
 df.columns = ['Название', 'Цена']
 df = df[pd.to_numeric(df['Цена'], errors='coerce').notnull()]
@@ -35,16 +53,15 @@ df.to_excel(xlsx_output, index=False)
 print("✔️ Преобразование завершено")
 
 # === 4. Заливаем в GitHub ===
-# Рабочая директория — это корень репозитория
-repo_dir = os.getcwd()
+print("⬆️ Пушим в репозиторий...")
 
-# Git конфигурация (если нужно)
+# Устанавливаем конфиг для GitHub Actions
 subprocess.run(["git", "config", "user.name", "github-actions"])
 subprocess.run(["git", "config", "user.email", "github-actions@github.com"])
 
-# Добавляем и пушим изменения
+# Добавляем, коммитим и пушим
 subprocess.run(["git", "add", xlsx_output])
 subprocess.run(["git", "commit", "-m", "Обновление XLSX с актуальными ценами"])
 subprocess.run(["git", "push"])
 
-print("✔️ XLSX залит на GitHub")
+print("✅ Успешно запушено.")
